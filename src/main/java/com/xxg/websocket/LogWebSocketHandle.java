@@ -25,9 +25,11 @@ public class LogWebSocketHandle {
 	@OnOpen
 	public void onOpen(@PathParam("file") String file , Session session) {
 		log.info(file);
+		file = file.replaceAll("%7C","|").replaceAll("\\|","/");
+                log.info(file);
 		try {
 			// 执行tail -f命令
-			process = Runtime.getRuntime().exec("tail -f " + file.replaceAll("|","/"));
+			process = Runtime.getRuntime().exec("tail -f " + file);
 			inputStream = process.getInputStream();
 
 			// 一定要启动新的线程，防止InputStream阻塞处理WebSocket的线程

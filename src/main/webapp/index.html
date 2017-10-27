@@ -36,7 +36,8 @@
 	
 	function connect(){
         // 指定websocket路径
-		var selectFile = $('#select').val();
+          $('#log-container div').empty();
+		var selectFile = encodeURI($('#select').val());
         window.websocket = new WebSocket('ws://'+ window.location.host +'/log/' + selectFile );
         window.websocket.onmessage = function(event) {
             // 接收服务端的实时日志并添加到HTML页面中

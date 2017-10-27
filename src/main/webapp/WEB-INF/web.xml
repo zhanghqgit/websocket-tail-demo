@@ -10,7 +10,7 @@
 		<servlet-class>com.xxg.websocket.LLDirectory</servlet-class>
 		<init-param>
 			<param-name>absolutePath</param-name>
-			<param-value>D:\\logs</param-value>
+			<param-value>/root/logs</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
