@@ -1,5 +1,7 @@
 package com.xxg.websocket;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -7,9 +9,11 @@ import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/log")
+@ServerEndpoint("/log/{file}")
+@Slf4j
 public class LogWebSocketHandle {
 	
 	private Process process;
@@ -19,12 +23,13 @@ public class LogWebSocketHandle {
 	 * 新的WebSocket请求开启
 	 */
 	@OnOpen
-	public void onOpen(Session session) {
+	public void onOpen(@PathParam("file") String file , Session session) {
+		log.info(file);
 		try {
 			// 执行tail -f命令
-			process = Runtime.getRuntime().exec("tail -f /var/log/syslog");
+			process = Runtime.getRuntime().exec("tail -f " + file.replaceAll("|","/"));
 			inputStream = process.getInputStream();
-			
+
 			// 一定要启动新的线程，防止InputStream阻塞处理WebSocket的线程
 			TailLogThread thread = new TailLogThread(inputStream, session);
 			thread.start();
