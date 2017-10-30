@@ -3,16 +3,29 @@
 <head>
 <meta charset="utf-8">
 <title>tail log</title>
-<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+	<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+	<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <body>
-	<div>
-		<select id="select" style="width: 200px;"></select>
-		<button onclick="search()">显示文件</button>
-		<button onclick="connect()">TAIL文件</button>
-		<button onclick="cancel()">取消TAIL</button>
+	<div class="row" style="padding: 10px;">
+		<form class="form form-inline" style="margin-left: 15px;">
+			<div class="form-group">
+				<select class="form-control" id="select" style="width: 200px;"></select>
+				<input type="number" id="file-num" class="form-control" placeholder="输入倒数行号" value="100" />
+			</div>
+			<div class="form-group">
+				<button type="button" id="search-btn" class="btn btn-primary" onclick="search()">显示文件</button>
+				<button type="button" id="tail-btn" disabled="disabled" class="btn btn-success" onclick="connect()">TAIL文件</button>
+				<button type="button" id="cancel-tail-btn" disabled="disabled" class="btn btn-default" onclick="cancel()">取消TAIL</button>
+				<button type="button" id="download-btn" class="btn btn-info" onclick="download()">下载</button>
+			</div>
+		</form>
+
 	</div>
-	<div id="log-container" style="height: 450px; overflow-y: scroll; background: #333; color: #aaa; padding: 10px;">
+	<div id="log-container" class="row" style="margin: 0px 5px; height: 450px; overflow-y: scroll; background: #333; color: #aaa; padding: 10px;">
 		<div>
 		</div>
 	</div>
@@ -28,8 +41,10 @@
 			    select.empty();
 			    for( file in data){
 			    	select.append('<option value="' + data[file]["path"] + '">' +
-                        data[file]["name"] + '</option>')
+                        data[file]["name"] + '</option>');
 				}
+                $('#tail-btn').removeAttr('disabled');
+				console.log(1111)
 			}
 		})
     }
@@ -38,19 +53,43 @@
         // 指定websocket路径
           $('#log-container div').empty();
 		var selectFile = encodeURI($('#select').val());
-        window.websocket = new WebSocket('ws://'+ window.location.host +'/log/' + selectFile );
+		if (selectFile == 'null'){
+		    alert('请先选择文件');
+		    return;
+		}
+		var fileNum = $('#file-num').val();
+        window.websocket = new WebSocket('ws://'+ window.location.host +'/log/' + selectFile +
+									'/' + fileNum );
         window.websocket.onmessage = function(event) {
             // 接收服务端的实时日志并添加到HTML页面中
             $("#log-container div").append(event.data);
             // 滚动条滚动到最低部
             $("#log-container").scrollTop($("#log-container div").height() - $("#log-container").height());
         };
+
+        $('#tail-btn').attr('disabled','disabled');
+        $('#cancel-tail-btn').removeAttr('disabled');
+        $('#search-btn').attr('disabled','disabled');
+        console.info('connect')
 	}
 
 	function cancel() {
 		window.websocket.close();
+        $('#tail-btn').removeAttr('disabled');
+        $('#search-btn').removeAttr('disabled');
+        $('#cancel-tail-btn').attr('disabled','disabled');
     }
-	
+
+    function  download() {
+        var selectFile = encodeURI($('#select').val());
+        console.info(selectFile);
+        if (selectFile == 'null'){
+            alert('请先选择文件');
+            return;
+        }
+
+        window.open('/download?file=' + selectFile);
+    }
 </script>
 </body>
 </html>

@@ -17,7 +17,7 @@ import java.util.List;
  * Created by zhanghengqiang on 2017/10/27.
  */
 @Slf4j
-public class LLDirectory extends HttpServlet {
+public class LLDirectoryServlet extends HttpServlet {
 
     private String absolutePath;
 

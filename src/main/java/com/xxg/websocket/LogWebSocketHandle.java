@@ -12,7 +12,7 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/log/{file}")
+@ServerEndpoint("/log/{file}/{num}")
 @Slf4j
 public class LogWebSocketHandle {
 	
@@ -23,21 +23,22 @@ public class LogWebSocketHandle {
 	 * 新的WebSocket请求开启
 	 */
 	@OnOpen
-	public void onOpen(@PathParam("file") String file , Session session) {
+	public void onOpen(@PathParam("file") String file , @PathParam("num") String num,  Session session) {
 		log.info(file);
 		file = file.replaceAll("%7C","|").replaceAll("\\|","/");
                 log.info(file);
-		try {
-			// 执行tail -f命令
-			process = Runtime.getRuntime().exec("tail -f " + file);
-			inputStream = process.getInputStream();
-
-			// 一定要启动新的线程，防止InputStream阻塞处理WebSocket的线程
-			TailLogThread thread = new TailLogThread(inputStream, session);
-			thread.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+                log.info(num);
+//		try {
+//			// 执行tail -f命令
+//			process = Runtime.getRuntime().exec("tail -f -n " + num + " " + file);
+//			inputStream = process.getInputStream();
+//
+//			// 一定要启动新的线程，防止InputStream阻塞处理WebSocket的线程
+//			TailLogThread thread = new TailLogThread(inputStream, session);
+//			thread.start();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**
